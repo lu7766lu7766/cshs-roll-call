@@ -104,13 +104,7 @@ function toggleTheme() {
 // 課程清單渲染 (嚴格保證 高一 -> 高二 -> 高三 順序)
 // ==========================================================================
 function getCourseList() {
-  if (state.courses && state.courses.length > 0) {
-    return state.courses;
-  }
-  if (typeof COURSES !== 'undefined' && Array.isArray(COURSES)) {
-    return COURSES;
-  }
-  return [];
+  return state.courses || [];
 }
 
 // 連線 Hono 後端即時同步課程與名冊
@@ -146,9 +140,20 @@ async function syncCoursesFromBackend(forceRefresh = false) {
       }
     }
   } catch (e) {
-    console.log('[HONO BACKEND] 後端未連線或離線，使用本機預載課程資料庫', e);
-    if (bannerText) bannerText.textContent = '⚡ 清水高中選修系統 (離線/預載資料庫)';
-    if (bannerTime) bannerTime.textContent = '離線備援';
+    console.error('[HONO BACKEND] 後端連線異常:', e);
+    if (bannerText) bannerText.innerHTML = '⚠️ 後端連線中斷，請確認伺服器或網路狀態';
+    if (bannerTime) bannerTime.textContent = '連線失敗';
+    const container = document.getElementById('courseContainer');
+    if (container && (!state.courses || state.courses.length === 0)) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 16px; color: var(--text-muted);">
+          <div style="font-size: 2.2rem; margin-bottom: 8px;">📡</div>
+          <p style="color: #f87171; font-weight: 600;">無法連線清水高中選修系統後台</p>
+          <p style="font-size: 0.82rem; margin-top: 6px; color: var(--text-muted);">請確認伺服器是否正常運作或點擊下方按鈕重試</p>
+          <button type="button" class="btn-primary" style="margin-top: 14px; padding: 8px 18px; font-size: 0.85rem;" onclick="syncCoursesFromBackend(true)">🔄 點擊重新連線</button>
+        </div>
+      `;
+    }
   }
 }
 

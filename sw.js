@@ -1,9 +1,8 @@
-const CACHE_NAME = 'cshs-rollcall-v3';
+const CACHE_NAME = 'cshs-rollcall-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
-  './courses_data.js',
   './app.js',
   './manifest.webmanifest',
   './assets/icon-192.png',

@@ -93,7 +93,11 @@
 
       <!-- Course Cards Container -->
       <div id="courseContainer" class="course-grid">
-        <!-- Dynamically rendered by app.js -->
+        <div id="courseLoadingIndicator" style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-muted);">
+          <div style="font-size: 2.2rem; animation: pulse 1.5s infinite;">⏳</div>
+          <p style="margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: #38bdf8;">正在連線清水高中後台即時爬取課程與名冊...</p>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">初次連線約需 3~5 秒，之後將快取秒開</span>
+        </div>
       </div>
     </main>
 
@@ -265,7 +269,6 @@
   </div>
 
   <!-- Application Scripts -->
-  <script src="courses_data.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

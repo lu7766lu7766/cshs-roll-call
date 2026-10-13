@@ -18,6 +18,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Cloudflare
+.wrangler/
+
 # Temporary / Scratch
 tmp/
 temp/

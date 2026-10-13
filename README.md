@@ -39,13 +39,33 @@
 
 ## 🚀 啟動與使用方式
 
-### 方式 1：啟動 Hono 伺服器 (推薦，具備即時爬蟲與代理送出)
+### 方式 1：本機運行 Hono 伺服器
 ```bash
 npm install
 npm run dev
 ```
 瀏覽器開啟：`http://localhost:3000`
 
-### 方式 2：純靜態網頁模式 / 離線 PWA
-直接以任何 HTTP 伺服器開啟本專案目錄（如 `python -m http.server 3000` 或部署至 GitHub Pages），系統將自動啟動離線備援資料庫運作。
+---
+
+## ☁️ 部署至 Cloudflare
+
+本專案原生支援 Cloudflare（具備 `_worker.js` 與 `wrangler.json`），提供兩種極速部署方式：
+
+### 推薦方式 A：Cloudflare Pages（與 GitHub 連動，自動 CI/CD）
+1. 登入 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+2. 進入 **Workers & Pages** ➔ **Create application** ➔ **Pages** ➔ **Connect to Git**。
+3. 選擇 GitHub 儲存庫 `lu7766lu7766/cshs-roll-call`。
+4. 建置設定：
+   - **Framework preset**：`None`
+   - **Build command**：（留空，或輸入 `npm run build`）
+   - **Build output directory**：`.`（或留空代表根目錄）
+5. 點擊 **Save and Deploy**，Cloudflare 會自動讀取 `_worker.js`，兼具前端靜態 CDN 與 Hono 即時爬蟲 API！
+
+### 推薦方式 B：Cloudflare Workers（使用 Wrangler CLI 一鍵發布）
+在終端機執行：
+```bash
+npx wrangler login   # 首次登入 Cloudflare
+npx wrangler deploy  # 一鍵發布全端專案至 Cloudflare Workers
+```
 
