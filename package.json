@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "清水高中選修課程快速點名系統 (PWA RWD)",
   "type": "module",
-  "main": "server.js",
+  "main": "_worker.js",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
+    "dev": "node _worker.js",
+    "start": "node _worker.js",
     "build": "echo No build required",
     "deploy": "wrangler deploy"
   },

@@ -8,7 +8,7 @@ app.use('/api/*', cors());
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyYvKw5AoGJv-7P7ofv0YO_h627vOOm-NtYjhb47lo4AdAcfO2md0G2FYXp6Gg0U33I/exec';
 
-// 記憶體快取 (Cloudflare Worker 節點層級快取，10 分鐘 TTL)
+// 記憶體快取 (在 Cloudflare Worker 或 Node.js Process 中共用，10 分鐘 TTL)
 let coursesCache = {
   data: null,
   token: null,
@@ -27,7 +27,7 @@ function decodeGasResponse(htmlText) {
 
 // 核心爬蟲函式：登入並即時抓取所有真實課程與學生名冊
 async function crawlCourses(account = 'cshs643', password = 'cshs643') {
-  console.log(`[CF-CRAWLER] 正在爬取清水高中 GAS 後台資料 (帳號: ${account})...`);
+  console.log(`[CRAWLER] 正在爬取清水高中 GAS 後台資料 (帳號: ${account})...`);
 
   // 1. 登入取得首頁與會話 Token
   const loginBody = new URLSearchParams({
@@ -279,20 +279,44 @@ app.post('/api/clear-cache', (c) => {
 app.get('/api/health', (c) => {
   return c.json({
     status: 'ok',
-    platform: 'Cloudflare',
     cached: !!coursesCache.data,
     time: new Date().toISOString()
   });
 });
 
 // ==========================================================================
-// 靜態前端資源轉發 (Cloudflare Pages / Workers Assets)
+// 靜態前端資源轉發 (全自動雙環境相容)
 // ==========================================================================
-app.all('*', (c) => {
+app.all('*', async (c) => {
+  // 1. 線上環境：Cloudflare Pages / Workers
   if (c.env && c.env.ASSETS) {
     return c.env.ASSETS.fetch(c.req.raw);
   }
-  return c.text('Not Found', 404);
+
+  // 2. 本地環境：Node.js
+  try {
+    const { serveStatic } = await import('@hono/node-server/serve-static');
+    return serveStatic({ root: './' })(c);
+  } catch {
+    return c.text('Not Found', 404);
+  }
 });
 
 export default app;
+
+// ==========================================================================
+// 本地 Node.js 啟動進入點 (當直接執行 node _worker.js 或 npm run dev 時)
+// ==========================================================================
+if (typeof process !== 'undefined' && process.argv && process.argv[1] && process.argv[1].includes('_worker.js')) {
+  import('@hono/node-server').then(({ serve }) => {
+    const PORT = process.env.PORT || 3000;
+    console.log(`\n======================================================`);
+    console.log(`🚀 清水高中選修點名伺服器已啟動 (本地模式): http://localhost:${PORT}`);
+    console.log(`   (單一檔案 _worker.js：本地 Node 與線上 Cloudflare 100% 共用)`);
+    console.log(`======================================================\n`);
+    serve({
+      fetch: app.fetch,
+      port: PORT
+    });
+  });
+}

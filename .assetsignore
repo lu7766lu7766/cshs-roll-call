@@ -1,0 +1,11 @@
+# Cloudflare Assets Ignore
+node_modules/
+.git/
+.wrangler/
+_worker.js
+server.js
+package.json
+package-lock.json
+wrangler.json
+README.md
+.assetsignore
