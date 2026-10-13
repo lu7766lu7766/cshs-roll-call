@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>清水高中 選修課程快速點名系統</title>
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="清水點名">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="assets/favicon.png" alt="CSHS Logo" class="brand-icon">
+        <div>
+          <div class="brand-title">
+            清水高中
+            <span class="user-pill">
+              <span class="user-pill-dot"></span>
+              <span id="currentAccountBadge">cshs643</span>
+            </span>
+          </div>
+          <div class="brand-subtitle" id="currentDateDisplay">載入日期中...</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="clearCacheBtn" title="清除快取並強制更新">🔄</button>
+        <button class="icon-btn" id="themeToggleBtn" title="切換深淺模式">🌓</button>
+        <button class="icon-btn" id="historyBtn" title="歷史點名紀錄">📋</button>
+        <button class="icon-btn" id="settingsBtn" title="設定">⚙️</button>
+      </div>
+    </header>
+
+    <!-- PWA Install Prompt Banner (Visible on mobile/desktop if installable) -->
+    <div id="pwaBanner" class="pwa-banner hidden">
+      <div class="pwa-info">
+        <span style="font-size: 1.4rem;">📱</span>
+        <div>
+          <strong style="font-size: 0.88rem; color: #fff;">安裝清水點名 App</strong>
+          <div style="font-size: 0.75rem; color: #94a3b8;">免開瀏覽器，一鍵桌面啟動</div>
+        </div>
+      </div>
+      <button id="pwaInstallBtn" class="pwa-install-btn">立即安裝</button>
+    </div>
+
+    <!-- Notification / Status Banner -->
+    <div id="statusBanner" class="status-banner">
+      <span id="bannerText">⚡ 已連線至清水高中選修系統後台 (免登入極速版)</span>
+      <span id="bannerTime" style="font-size: 0.75rem; opacity: 0.8;">即時同步</span>
+    </div>
+
+    <!-- ==========================================
+         VIEW 1: COURSE SELECTION (選擇課程頁面)
+         ========================================== -->
+    <main id="courseView" class="view-section">
+      <!-- Grade Filter Tabs (依照一、二、三順序排列) -->
+      <nav class="grade-tabs">
+        <button class="tab-btn active" data-grade="all">
+          <span>全部課程</span>
+          <span class="tab-badge" id="badgeAll">3</span>
+        </button>
+        <button class="tab-btn" data-grade="1">
+          <span>高一課程</span>
+          <span class="tab-badge" id="badgeGrade1">1</span>
+        </button>
+        <button class="tab-btn" data-grade="2">
+          <span>高二課程</span>
+          <span class="tab-badge" id="badgeGrade2">1</span>
+        </button>
+        <button class="tab-btn" data-grade="3">
+          <span>高三課程</span>
+          <span class="tab-badge" id="badgeGrade3">1</span>
+        </button>
+      </nav>
+
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>📚 選修課程清單</span>
+        </h2>
+        <span style="font-size: 0.78rem; color: var(--text-muted);" id="sortHintText">依年級 (一、二、三) 順序排列</span>
+      </div>
+
+      <!-- Course Cards Container -->
+      <div id="courseContainer" class="course-grid">
+        <!-- Dynamically rendered by app.js -->
+      </div>
+    </main>
+
+    <!-- ==========================================
+         VIEW 2: ROLL CALL SCREEN (點名頁面)
+         ========================================== -->
+    <main id="rollCallView" class="view-section hidden">
+      <!-- Course Info & Header Card -->
+      <div class="rollcall-header-card">
+        <div class="course-back-bar">
+          <button class="back-btn" id="backToCoursesBtn">
+            <span>← 返回選課</span>
+          </button>
+          <span class="grade-tag" id="currentCourseGradeTag">高二選修</span>
+        </div>
+        <h2 class="rollcall-title" id="currentCourseTitle">載入中...</h2>
+        <div class="rollcall-subtitle">
+          <span id="currentCourseCode">課程代碼: 643</span>
+          <span id="currentCourseClassroom">📍 電腦教室 (二)</span>
+          <span id="currentRollCallDate">📅 2026/10/13</span>
+        </div>
+
+        <!-- NEW FEATURE: 節次多選器 (Multi-Select Periods) -->
+        <div class="period-selection-section" style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 5px;">
+              <span>🕒 點名節次 (可多選，一次批次送出)：</span>
+            </label>
+            <span style="font-size: 0.75rem; color: var(--text-muted);" id="periodCountHint">已選擇 2 節</span>
+          </div>
+          <div class="period-chip-group" id="periodChipGroup" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <!-- 由 app.js 根據目前課程真實節次動態產生 (例如 34 節即僅顯示第 3、4 節) -->
+          </div>
+        </div>
+
+        <!-- Attendance Realtime Counter -->
+        <div class="stat-summary-bar">
+          <div class="stat-item">
+            <div class="stat-val val-total" id="statTotal">0</div>
+            <div class="stat-lbl">應到人數</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val val-present" id="statPresent">0</div>
+            <div class="stat-lbl">實到出席</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val val-absent" id="statAbsent">0</div>
+            <div class="stat-lbl">曠課缺席</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val val-leave" id="statLeave">0</div>
+            <div class="stat-lbl">請假總計</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="quick-controls">
+        <button class="quick-btn all-present-btn" id="allPresentBtn">
+          <span>✅ 一鍵全員出席</span>
+        </button>
+        <button class="quick-btn" id="sortSeatBtn">
+          <span>🔢 依座號排序</span>
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="studentSearchInput" class="search-input" placeholder="搜尋學生姓名、學號或座號...">
+      </div>
+
+      <!-- Student Roster List -->
+      <div id="studentListContainer" class="student-list">
+        <!-- Rendered by app.js -->
+      </div>
+    </main>
+
+    <!-- ==========================================
+         VIEW 3: HISTORY LOGS (歷史點名紀錄)
+         ========================================== -->
+    <main id="historyView" class="view-section hidden">
+      <div class="section-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="back-btn" id="backFromHistoryBtn">← 返回</button>
+          <h2 class="section-title">📋 歷史點名紀錄</h2>
+        </div>
+        <button class="icon-btn" id="clearHistoryBtn" title="清空紀錄" style="width: auto; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.75rem;">清空</button>
+      </div>
+      <div id="historyListContainer" class="student-list" style="margin-top: 12px;">
+        <!-- Rendered by app.js -->
+      </div>
+    </main>
+
+    <!-- ==========================================
+         Sticky Bottom Action Bar (送出面板)
+         ========================================== -->
+    <div id="bottomActionBar" class="bottom-action-bar hidden">
+      <div class="bottom-summary">
+        <div class="bottom-summary-text" id="bottomSummaryText">全到 (32/32)</div>
+        <div class="bottom-summary-sub" id="bottomPeriodSummary">預計送出: 第 5, 6 節</div>
+      </div>
+      <button id="submitRollCallBtn" class="submit-btn">
+        <span>🚀 確認送出點名</span>
+      </button>
+    </div>
+
+    <!-- ==========================================
+         Settings Modal (設定抽屜)
+         ========================================== -->
+    <div id="settingsModal" class="modal-backdrop">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">⚙️ 系統與帳號設定</h3>
+          <button class="icon-btn" id="closeSettingsBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">預設帳號 (已寫死免輸入)</label>
+            <input type="text" id="settingAcc" class="form-input" value="cshs643">
+          </div>
+          <div class="form-group">
+            <label class="form-label">預設密碼 (可隨管理員重設更新)</label>
+            <input type="text" id="settingPwd" class="form-input" value="cshs643">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GAS 後端 Web App URL</label>
+            <input type="text" id="settingApiUrl" class="form-input" value="https://script.google.com/macros/s/AKfycbyYvKw5AoGJv-7P7ofv0YO_h627vOOm-NtYjhb47lo4AdAcfO2md0G2FYXp6Gg0U33I/exec">
+          </div>
+          <div class="form-group">
+            <label class="form-label">送出傳輸模式</label>
+            <select id="settingSubmitMode" class="form-input" style="color: var(--text-primary); background: #1e293b;">
+              <option value="iframe">背景隱形表單 (免 CORS 限制，直連 GAS 後端)</option>
+              <option value="fetch">Fetch 非同步直接請求</option>
+              <option value="local_test">本機模擬送出測試 (供帳號未解鎖時演示)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+            <label class="form-label">快取與資料維護</label>
+            <button type="button" class="btn-secondary" id="modalClearCacheBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(239, 68, 68, 0.12); color: #f87171; border-color: rgba(239, 68, 68, 0.3);">
+              <span>🧹 一鍵清除快取與離線 Service Worker</span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="resetDefaultBtn">回復預設</button>
+          <button class="btn-primary" id="saveSettingsBtn">儲存設定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden sink iframe for background zero-CORS submission to Google Apps Script -->
+    <iframe name="gas_submission_sink" id="gasSubmissionSink" style="display: none; width: 0; height: 0; border: none;"></iframe>
+    <form id="gasHiddenForm" target="gas_submission_sink" method="post" action="https://script.google.com/macros/s/AKfycbyYvKw5AoGJv-7P7ofv0YO_h627vOOm-NtYjhb47lo4AdAcfO2md0G2FYXp6Gg0U33I/exec" style="display: none;">
+      <input type="hidden" name="method" id="gasFormMethod" value="write">
+      <input type="hidden" name="acc" id="gasFormAcc" value="cshs643">
+      <input type="hidden" name="pwd" id="gasFormPwd" value="cshs643">
+      <input type="hidden" name="courseId" id="gasFormCourseId" value="">
+      <input type="hidden" name="period" id="gasFormPeriod" value="">
+      <input type="hidden" name="date" id="gasFormDate" value="">
+      <input type="hidden" name="data" id="gasFormData" value="">
+    </form>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast">
+      <span id="toastIcon">✅</span>
+      <span id="toastMsg">點名紀錄已成功送出！</span>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="courses_data.js?v=3"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

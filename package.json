@@ -1,0 +1,22 @@
+{
+  "name": "cshs-roll-call",
+  "version": "1.0.0",
+  "description": "清水高中選修課程快速點名系統 (PWA RWD)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "cshs",
+    "roll-call",
+    "pwa"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^2.1.4",
+    "hono": "^4.13.13"
+  }
+}
