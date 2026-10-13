@@ -81,15 +81,20 @@ async function crawlCourses(account = 'cshs643', password = 'cshs643') {
     const cHtmlRaw = await cRes.text();
     const cleanC = decodeGasResponse(cHtmlRaw);
 
-    // 解析課程標題與年級代碼
+    // 解析課程標題與上課星期代碼 (例如 [一34] 為星期一，[二34] 為星期二，[三67] 為星期三)
     const titleMatch = cleanC.match(/課程名稱：\[(.*?)\]\s*(.*?)(?:<br>|<\/br>|<br\s*\/>|\n)/);
     const bracketTag = titleMatch ? titleMatch[1].trim() : '';
     const courseTitle = titleMatch ? titleMatch[2].trim() : item.rawLabel;
 
-    let grade = 1;
-    if (bracketTag.includes('一')) grade = 1;
-    else if (bracketTag.includes('二')) grade = 2;
-    else if (bracketTag.includes('三')) grade = 3;
+    let weekday = 1;
+    let weekdayChar = '一';
+    if (bracketTag.includes('一')) { weekday = 1; weekdayChar = '一'; }
+    else if (bracketTag.includes('二')) { weekday = 2; weekdayChar = '二'; }
+    else if (bracketTag.includes('三')) { weekday = 3; weekdayChar = '三'; }
+    else if (bracketTag.includes('四')) { weekday = 4; weekdayChar = '四'; }
+    else if (bracketTag.includes('五')) { weekday = 5; weekdayChar = '五'; }
+    else if (bracketTag.includes('六')) { weekday = 6; weekdayChar = '六'; }
+    else if (bracketTag.includes('日')) { weekday = 7; weekdayChar = '日'; }
 
     // 解析節次
     const lessonRegex = /<input\s+type="radio"\s+name="lesson"\s+value="(.*?)"/g;
@@ -146,8 +151,11 @@ async function crawlCourses(account = 'cshs643', password = 'cshs643') {
     courses.push({
       id: `cshs-${item.code}`,
       code: item.code,
-      grade: grade,
-      gradeLabel: `高${['一', '二', '三'][grade - 1]}選修`,
+      weekday: weekday,
+      weekdayChar: weekdayChar,
+      weekdayLabel: `週${weekdayChar}選修`,
+      grade: weekday, // 相容舊版欄位
+      gradeLabel: `週${weekdayChar}選修`,
       tag: bracketTag,
       name: bracketTag ? `[${bracketTag}] ${courseTitle}` : courseTitle,
       shortName: courseTitle,
@@ -159,9 +167,11 @@ async function crawlCourses(account = 'cshs643', password = 'cshs643') {
     });
   }
 
-  // 3. 嚴格依「高一 (1) ➔ 高二 (2) ➔ 高三 (3)」順序排序
+  // 3. 嚴格依「週一 (1) ➔ 週二 (2) ➔ 週三 (3)」順序排序
   courses.sort((a, b) => {
-    if (a.grade !== b.grade) return a.grade - b.grade;
+    const wa = a.weekday ?? a.grade ?? 0;
+    const wb = b.weekday ?? b.grade ?? 0;
+    if (wa !== wb) return wa - wb;
     return a.code.localeCompare(b.code);
   });
 

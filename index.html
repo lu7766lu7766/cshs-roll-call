@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -35,24 +35,10 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" id="clearCacheBtn" title="清除快取並強制更新">🔄</button>
-        <button class="icon-btn" id="themeToggleBtn" title="切換深淺模式">🌓</button>
         <button class="icon-btn" id="historyBtn" title="歷史點名紀錄">📋</button>
         <button class="icon-btn" id="settingsBtn" title="設定">⚙️</button>
       </div>
     </header>
-
-    <!-- PWA Install Prompt Banner (Visible on mobile/desktop if installable) -->
-    <div id="pwaBanner" class="pwa-banner hidden">
-      <div class="pwa-info">
-        <span style="font-size: 1.4rem;">📱</span>
-        <div>
-          <strong style="font-size: 0.88rem; color: #fff;">安裝清水點名 App</strong>
-          <div style="font-size: 0.75rem; color: #94a3b8;">免開瀏覽器，一鍵桌面啟動</div>
-        </div>
-      </div>
-      <button id="pwaInstallBtn" class="pwa-install-btn">立即安裝</button>
-    </div>
 
     <!-- Notification / Status Banner -->
     <div id="statusBanner" class="status-banner">
@@ -64,22 +50,22 @@
          VIEW 1: COURSE SELECTION (選擇課程頁面)
          ========================================== -->
     <main id="courseView" class="view-section">
-      <!-- Grade Filter Tabs (依照一、二、三順序排列) -->
+      <!-- Weekday Filter Tabs (依照週一、週二、週三順序排列) -->
       <nav class="grade-tabs">
-        <button class="tab-btn active" data-grade="all">
+        <button class="tab-btn active" data-grade="all" data-weekday="all">
           <span>全部課程</span>
           <span class="tab-badge" id="badgeAll">3</span>
         </button>
-        <button class="tab-btn" data-grade="1">
-          <span>高一課程</span>
+        <button class="tab-btn" data-grade="1" data-weekday="1">
+          <span>週一課程</span>
           <span class="tab-badge" id="badgeGrade1">1</span>
         </button>
-        <button class="tab-btn" data-grade="2">
-          <span>高二課程</span>
+        <button class="tab-btn" data-grade="2" data-weekday="2">
+          <span>週二課程</span>
           <span class="tab-badge" id="badgeGrade2">1</span>
         </button>
-        <button class="tab-btn" data-grade="3">
-          <span>高三課程</span>
+        <button class="tab-btn" data-grade="3" data-weekday="3">
+          <span>週三課程</span>
           <span class="tab-badge" id="badgeGrade3">1</span>
         </button>
       </nav>
@@ -88,7 +74,7 @@
         <h2 class="section-title">
           <span>📚 選修課程清單</span>
         </h2>
-        <span style="font-size: 0.78rem; color: var(--text-muted);" id="sortHintText">依年級 (一、二、三) 順序排列</span>
+        <span style="font-size: 0.78rem; color: var(--text-muted);" id="sortHintText">依星期 (週一、二、三) 順序排列</span>
       </div>
 
       <!-- Course Cards Container -->
@@ -111,7 +97,7 @@
           <button class="back-btn" id="backToCoursesBtn">
             <span>← 返回選課</span>
           </button>
-          <span class="grade-tag" id="currentCourseGradeTag">高二選修</span>
+          <span class="grade-tag" id="currentCourseGradeTag">週二選修</span>
         </div>
         <h2 class="rollcall-title" id="currentCourseTitle">載入中...</h2>
         <div class="rollcall-subtitle">

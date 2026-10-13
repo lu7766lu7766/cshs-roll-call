@@ -82,21 +82,10 @@ function initDateDisplay() {
   if (rollDateEl) rollDateEl.textContent = `📅 ${dateStr}`;
 }
 
-// 深淺色主題控制
+// 主題控制 (固定深色模式)
 function initTheme() {
-  const savedTheme = localStorage.getItem('cshs_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  const btn = document.getElementById('themeToggleBtn');
-  if (btn) btn.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
-}
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('cshs_theme', next);
-  const btn = document.getElementById('themeToggleBtn');
-  if (btn) btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', 'dark');
+  localStorage.setItem('cshs_theme', 'dark');
 }
 
 // ==========================================================================
@@ -160,9 +149,9 @@ async function syncCoursesFromBackend(forceRefresh = false) {
 function renderCourseTabs() {
   const allCourses = getCourseList();
   const total = allCourses.length;
-  const g1 = allCourses.filter(c => c.grade === 1).length;
-  const g2 = allCourses.filter(c => c.grade === 2).length;
-  const g3 = allCourses.filter(c => c.grade === 3).length;
+  const g1 = allCourses.filter(c => (c.weekday === 1 || c.grade === 1)).length;
+  const g2 = allCourses.filter(c => (c.weekday === 2 || c.grade === 2)).length;
+  const g3 = allCourses.filter(c => (c.weekday === 3 || c.grade === 3)).length;
 
   const bAll = document.getElementById('badgeAll');
   const bG1 = document.getElementById('badgeGrade1');
@@ -181,34 +170,44 @@ function renderCourses() {
 
   const allCourses = getCourseList();
 
-  // 1. 根據目前 Tab 進行年級篩選
+  // 1. 根據目前 Tab 進行上課星期篩選
   let list = [...allCourses];
   if (state.activeGradeFilter !== 'all') {
-    const filterGrade = parseInt(state.activeGradeFilter, 10);
-    list = list.filter(c => c.grade === filterGrade);
+    const filterDay = parseInt(state.activeGradeFilter, 10);
+    list = list.filter(c => (c.weekday === filterDay || c.grade === filterDay));
   }
 
-  // 2. 嚴格依「一、二、三」排序 (grade 1 -> 2 -> 3)
-  list.sort((a, b) => a.grade - b.grade);
+  // 2. 嚴格依「週一 (1) ➔ 週二 (2) ➔ 週三 (3)」排序
+  list.sort((a, b) => {
+    const wa = a.weekday ?? a.grade ?? 0;
+    const wb = b.weekday ?? b.grade ?? 0;
+    return wa - wb;
+  });
 
   // 3. 渲染課程卡片
   container.innerHTML = '';
   list.forEach(course => {
+    const dayNum = course.weekday || course.grade || 1;
     const card = document.createElement('div');
     card.className = 'course-card';
-    card.setAttribute('data-grade', course.grade);
+    card.setAttribute('data-grade', dayNum);
+    card.setAttribute('data-weekday', dayNum);
 
     // 檢查今天是否已有點名紀錄
     const todayStr = getTodayString();
     const hasRecordToday = state.history.some(h => h.courseCode === course.code && h.date === todayStr);
 
     const periodLabels = course.lessons.join('、');
+    const weekdayMap = { 1: '週一', 2: '週二', 3: '週三', 4: '週四', 5: '週五' };
+    const weekdayFullMap = { 1: '星期一', 2: '星期二', 3: '星期三', 4: '星期四', 5: '星期五' };
+    const wShort = weekdayMap[dayNum] || `週${dayNum}`;
+    const wFull = weekdayFullMap[dayNum] || `星期${dayNum}`;
 
     card.innerHTML = `
       <div>
         <div class="card-top">
-          <span class="grade-tag grade-${course.grade}">
-            ${course.grade === 1 ? '高一 (一)' : course.grade === 2 ? '高二 (二)' : '高三 (三)'}
+          <span class="grade-tag grade-${dayNum}">
+            ${wShort} (${wFull})
           </span>
           <span class="status-badge ${hasRecordToday ? 'done' : 'pending'}">
             ${hasRecordToday ? '今日已點名 ✓' : '尚未點名'}
@@ -257,9 +256,11 @@ function openRollCall(course) {
   document.getElementById('bottomActionBar').classList.remove('hidden');
 
   // 更新課程資訊
+  const dayNum = course.weekday || course.grade || 1;
+  const weekdayChar = course.weekdayChar || ['一', '二', '三', '四', '五'][dayNum - 1] || '一';
   document.getElementById('currentCourseTitle').textContent = course.name;
-  document.getElementById('currentCourseGradeTag').textContent = course.gradeLabel;
-  document.getElementById('currentCourseGradeTag').className = `grade-tag grade-${course.grade}`;
+  document.getElementById('currentCourseGradeTag').textContent = course.weekdayLabel || `週${weekdayChar}選修`;
+  document.getElementById('currentCourseGradeTag').className = `grade-tag grade-${dayNum}`;
   document.getElementById('currentCourseCode').textContent = `代碼: ${course.code}`;
   document.getElementById('currentCourseClassroom').textContent = `📍 清水高中選修班`;
 
@@ -722,34 +723,13 @@ function clearHistory() {
 }
 
 // ==========================================================================
-// PWA 註冊與桌面安裝
+// PWA 註冊
 // ==========================================================================
-let deferredPrompt = null;
-
 function initPwa() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
       .then(() => console.log('CSHS PWA Service Worker Registered'))
       .catch(err => console.log('SW registration error:', err));
-  }
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const banner = document.getElementById('pwaBanner');
-    if (banner) banner.classList.remove('hidden');
-  });
-
-  const installBtn = document.getElementById('pwaInstallBtn');
-  if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log('User install choice:', outcome);
-      deferredPrompt = null;
-      document.getElementById('pwaBanner').classList.add('hidden');
-    });
   }
 }
 
@@ -785,18 +765,15 @@ function getTodayString() {
 // 事件綁定 (Event Listeners)
 // ==========================================================================
 function bindEvents() {
-  // 年級分頁切換 (依高一、高二、高三)
+  // 星期分頁切換 (依週一、週二、週三)
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      state.activeGradeFilter = btn.getAttribute('data-grade');
+      state.activeGradeFilter = btn.getAttribute('data-weekday') || btn.getAttribute('data-grade');
       renderCourses();
     });
   });
-
-  // 主題切換
-  document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
 
   // 返回選課
   document.getElementById('backToCoursesBtn').addEventListener('click', closeRollCall);
@@ -878,10 +855,7 @@ function bindEvents() {
     showToast('設定已更新！', '💾');
   });
 
-  // 一鍵清除快取並強制重整按鈕
-  const clearCacheBtn = document.getElementById('clearCacheBtn');
-  if (clearCacheBtn) clearCacheBtn.addEventListener('click', clearAllCachesAndReload);
-
+  // 設定內一鍵清除快取並強制重整按鈕
   const modalClearCacheBtn = document.getElementById('modalClearCacheBtn');
   if (modalClearCacheBtn) modalClearCacheBtn.addEventListener('click', clearAllCachesAndReload);
 }

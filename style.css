@@ -350,9 +350,12 @@ body {
   opacity: 0.8;
 }
 
-.course-card[data-grade="1"]::before { background: #3b82f6; }
-.course-card[data-grade="2"]::before { background: #8b5cf6; }
-.course-card[data-grade="3"]::before { background: #ec4899; }
+.course-card[data-grade="1"]::before,
+.course-card[data-weekday="1"]::before { background: #3b82f6; }
+.course-card[data-grade="2"]::before,
+.course-card[data-weekday="2"]::before { background: #8b5cf6; }
+.course-card[data-grade="3"]::before,
+.course-card[data-weekday="3"]::before { background: #ec4899; }
 
 .card-top {
   display: flex;
