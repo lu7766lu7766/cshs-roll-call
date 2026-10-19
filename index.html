@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <div id="app">
@@ -34,13 +34,6 @@
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="icon-btn" id="diaryBtn" title="日誌審查" aria-label="日誌審查">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5z"></path>
-            <path d="M4 19.5A2 2 0 0 1 6 17.5h12"></path>
-            <path d="m9 10 2 2 4-4"></path>
-          </svg>
-        </button>
         <button type="button" class="icon-btn" id="historyBtn" title="歷史點名紀錄" aria-label="歷史點名紀錄">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 8v4l3 3"></path>
@@ -212,48 +205,6 @@
     </main>
 
     <!-- ==========================================
-         VIEW 4: DIARY REVIEW (iDiary 日誌審查入口)
-         ========================================== -->
-    <main id="diaryView" class="view-section hidden">
-      <div class="section-header history-section-header">
-        <div class="history-header-left">
-          <button type="button" class="back-btn" id="backFromDiaryBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M19 12H5"></path>
-              <path d="m12 19-7-7 7-7"></path>
-            </svg>
-            <span>返回</span>
-          </button>
-          <h2 class="section-title">日誌審查</h2>
-        </div>
-      </div>
-
-      <div class="diary-card">
-        <p class="diary-text">開啟 iDiary 審查頁後，會自動勾選<strong>第 1 週～本週</strong>，一次列出所有待審日誌。點「審查」可看完整日誌，再選擇「通過」或「退審」，操作與原網頁相同。</p>
-        <a class="btn-primary btn-block" id="openDiaryReviewLink" href="https://web.jhenggao.com/iDiary/dp_diaryReview" target="_blank" rel="noopener">開啟日誌審查</a>
-        <p class="diary-note">尚未登入時會先到登入頁；登入後自動回到審查頁。自動查詢需先安裝下方腳本（每台裝置只需設定一次）。</p>
-      </div>
-
-      <div class="diary-card">
-        <h3 class="diary-card-title">首次使用：安裝自動查詢腳本</h3>
-        <div class="diary-steps-title">電腦（Chrome / Edge）</div>
-        <ol class="diary-steps">
-          <li>安裝 Tampermonkey 擴充功能。</li>
-          <li>點下方「安裝腳本」，在 Tampermonkey 畫面按「安裝」。</li>
-          <li>若 Chrome 提示，到擴充功能詳細資料開啟「允許使用者指令碼」。</li>
-        </ol>
-        <div class="diary-steps-title">iPhone / iPad（Safari）</div>
-        <ol class="diary-steps">
-          <li>從 App Store 安裝「Userscripts」。</li>
-          <li>到「設定 › Safari › 延伸功能」開啟 Userscripts，並允許 web.jhenggao.com。</li>
-          <li>用 Safari 開啟「安裝腳本」，點網址列的延伸功能圖示安裝。</li>
-          <li>之後請從 Safari 進入審查頁；從主畫面 App 開啟的內嵌瀏覽器可能不會執行腳本。</li>
-        </ol>
-        <a class="btn-secondary btn-block" href="idiary-review.user.js" target="_blank" rel="noopener">安裝腳本</a>
-      </div>
-    </main>
-
-    <!-- ==========================================
          Sticky Bottom Action Bar (送出面板)
          ========================================== -->
     <div id="bottomActionBar" class="bottom-action-bar hidden">
@@ -340,6 +291,6 @@
   </div>
 
   <!-- Application Scripts -->
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
