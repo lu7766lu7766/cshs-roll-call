@@ -9,3 +9,5 @@ package-lock.json
 wrangler.json
 README.md
 .assetsignore
+.playwright-mcp/
+.gitignore

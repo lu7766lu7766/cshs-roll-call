@@ -163,6 +163,12 @@ select:focus-visible,
   line-height: 1.25;
 }
 
+/* 窄螢幕時讓帳號標籤縮成省略號，標題維持單行 */
+.brand-title > span:first-child {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .brand-subtitle {
   font-size: 0.72rem;
   color: var(--text-3);
@@ -182,6 +188,13 @@ select:focus-visible,
   color: var(--text-2);
   font-weight: 500;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.user-pill > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-actions {
@@ -1133,6 +1146,61 @@ select:focus-visible,
 
 .history-abnormal {
   font-size: 0.76rem;
+  color: var(--text-2);
+}
+
+/* ==========================================================================
+   10b. Diary Review View (日誌審查入口)
+   ========================================================================== */
+.diary-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diary-card a {
+  text-decoration: none;
+}
+
+.diary-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.diary-text {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.diary-text strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.diary-note {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
+.diary-steps-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.diary-steps {
+  margin-top: -6px;
+  padding-left: 20px;
+  font-size: 0.8rem;
+  line-height: 1.6;
   color: var(--text-2);
 }
 

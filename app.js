@@ -1277,6 +1277,7 @@ function openHistoryView() {
   document.getElementById('courseView').classList.add('hidden');
   document.getElementById('rollCallView').classList.add('hidden');
   document.getElementById('bottomActionBar').classList.add('hidden');
+  document.getElementById('diaryView').classList.add('hidden');
   document.getElementById('historyView').classList.remove('hidden');
 
   const container = document.getElementById('historyListContainer');
@@ -1332,6 +1333,16 @@ function openHistoryView() {
     `;
     container.appendChild(card);
   });
+}
+
+// iDiary 日誌審查入口（實際查詢由 idiary-review.user.js 在 iDiary 網站上執行）
+function openDiaryView() {
+  document.getElementById('courseView').classList.add('hidden');
+  document.getElementById('rollCallView').classList.add('hidden');
+  document.getElementById('bottomActionBar').classList.add('hidden');
+  document.getElementById('historyView').classList.add('hidden');
+  document.getElementById('diaryView').classList.remove('hidden');
+  window.scrollTo({ top: 0 });
 }
 
 function clearHistory() {
@@ -1446,6 +1457,13 @@ function bindEvents() {
     document.getElementById('courseView').classList.remove('hidden');
   });
   document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+
+  // 日誌審查入口
+  document.getElementById('diaryBtn').addEventListener('click', openDiaryView);
+  document.getElementById('backFromDiaryBtn').addEventListener('click', () => {
+    document.getElementById('diaryView').classList.add('hidden');
+    document.getElementById('courseView').classList.remove('hidden');
+  });
 
   // 設定 Modal
   const settingsModal = document.getElementById('settingsModal');
