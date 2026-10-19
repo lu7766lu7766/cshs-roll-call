@@ -237,11 +237,18 @@ app.post('/api/rollcall', async (c) => {
       return c.json({ success: false, error: '缺少必要欄位' }, 400);
     }
 
+    // token 與名冊同時取得，超過快取 TTL 就重新登入，避免用過期 token 寫入
     let token = coursesCache.token;
-    if (!token) {
+    const tokenExpired = Date.now() - coursesCache.timestamp >= CACHE_TTL_MS;
+    if (!token || tokenExpired) {
       const fresh = await crawlCourses();
       token = fresh.token;
-      coursesCache.token = token;
+      if (token) {
+        coursesCache = { data: fresh, token, timestamp: Date.now() };
+      }
+    }
+    if (!token) {
+      return c.json({ success: false, error: '無法取得 GAS 登入憑證（token），可能是帳號密碼錯誤或後台登入頁格式變更，未送出任何節次' }, 502);
     }
 
     const results = [];
@@ -260,12 +267,46 @@ app.post('/api/rollcall', async (c) => {
         formParams.append(r.fieldName, `${r.baseRaw},${r.statusCode}`);
       });
 
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formParams
-      });
-      results.push({ period: p, status: res.status, ok: res.ok });
+      try {
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formParams
+        });
+        // GAS 失敗時常仍回 HTTP 200：回應若是登入頁（含密碼欄位），代表 token 已失效、未寫入
+        const bodyText = res.ok ? await res.text() : '';
+        const decoded = decodeGasResponse(bodyText) || bodyText;
+        const isLoginPage = /name=\\*["']?pwd\b/.test(decoded);
+        if (res.ok && isLoginPage) {
+          coursesCache.token = null;
+          results.push({ period: p, ok: false, status: res.status, error: 'GAS 回到登入頁，登入憑證已失效，未寫入' });
+        } else if (res.ok) {
+          results.push({ period: p, ok: true, status: res.status, error: null });
+        } else {
+          const errMsg = `HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ''}`;
+          results.push({ period: p, ok: false, status: res.status, error: errMsg });
+        }
+      } catch (fetchErr) {
+        results.push({
+          period: p,
+          ok: false,
+          status: 0,
+          error: fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)
+        });
+      }
+    }
+
+    const failed = results.filter(r => !r.ok);
+    if (failed.length > 0) {
+      const failedPeriods = failed.map(f => f.period).join('、');
+      const reasonDetails = failed
+        .map(f => `第 ${f.period} 節：${f.error || (f.status ? `HTTP ${f.status}` : '連線失敗')}`)
+        .join('；');
+      return c.json({
+        success: false,
+        error: `第 ${failedPeriods} 節寫入失敗（${reasonDetails}）`,
+        results
+      }, 502);
     }
 
     return c.json({

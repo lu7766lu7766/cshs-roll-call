@@ -1,9 +1,9 @@
-const CACHE_NAME = 'cshs-rollcall-v4';
+const CACHE_NAME = 'cshs-rollcall-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css',
-  './app.js',
+  './style.css?v=8',
+  './app.js?v=8',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png',
@@ -29,7 +29,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-First for HTML and JS, Cache-First for static images, Bypass /api/
+// Network-First for HTML and JS, Cache-First for static assets, Bypass /api/
 self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('/api/') || event.request.url.includes('script.google.com') || event.request.url.includes('googleusercontent.com')) {
     return;
@@ -46,15 +46,24 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(event.request).then((res) => res || caches.match(event.request, { ignoreSearch: true })))
     );
     return;
   }
 
-  // Cache first for other assets
+  // Cache first for other assets (e.g. style.css?v=6, icons, manifest)
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request);
+      if (cached) return cached;
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request, { ignoreSearch: true }));
     })
   );
 });
