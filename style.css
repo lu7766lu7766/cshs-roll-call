@@ -125,14 +125,22 @@ select:focus-visible,
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg-blur);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--safe-top) calc(16px + var(--safe-right)) 0 calc(16px + var(--safe-left));
+}
+
+/* 模糊背景放在偽元素上：iOS WebKit 會讓 backdrop-filter 元素的子內容（文字、圖示）一起變糊 */
+.app-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg-blur);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .brand {
