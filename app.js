@@ -369,7 +369,7 @@ function applyTeacherName(name) {
   const displayTeacher = state.teacherName || fallbackName;
   const badge = document.getElementById('currentAccountBadge');
   if (badge) {
-    badge.textContent = `${state.config.account} (${displayTeacher})`;
+    badge.textContent = `${displayTeacher} 老師 · ${state.config.account}`;
   }
 }
 
@@ -530,8 +530,10 @@ function initDateDisplay() {
   const dayStr = `週${chineseDays[dayIndex]}`;
 
   const dateStr = `${year}/${month}/${date} (${dayStr})`;
+  const dayNumEl = document.getElementById('todayDayNum');
+  if (dayNumEl) dayNumEl.textContent = String(now.getDate());
   const el = document.getElementById('currentDateDisplay');
-  if (el) el.textContent = dateStr;
+  if (el) el.textContent = `${now.getMonth() + 1} 月 · ${dayStr}`;
 
   const rollDateEl = document.getElementById('currentRollCallDate');
   if (rollDateEl) rollDateEl.textContent = dateStr;
@@ -723,6 +725,30 @@ function renderCourseTabs() {
   if (bG3) bG3.textContent = g3;
 }
 
+// 課名去掉開頭的「[二34]」標籤（星期與節次已另外顯示）
+function getDisplayCourseName(name) {
+  const raw = String(name ?? '');
+  return raw.replace(/^\s*\[[^\]]*\]\s*/, '') || raw;
+}
+
+// 今日概況：今天有幾堂、還有幾堂未點名
+function renderTodayPanel(allCourses, todayWeekday, getDayNum, getTodayRecords) {
+  const headlineEl = document.getElementById('todayHeadline');
+  const subEl = document.getElementById('todaySub');
+  if (!headlineEl || !subEl) return;
+
+  const todayCourses = allCourses.filter(c => getDayNum(c) === todayWeekday);
+  if (todayCourses.length === 0) {
+    headlineEl.textContent = '今天沒有選修課';
+    subEl.textContent = `本週共 ${allCourses.length} 堂選修`;
+    return;
+  }
+
+  const pending = todayCourses.filter(c => getTodayRecords(c).length === 0).length;
+  headlineEl.textContent = `今天有 ${todayCourses.length} 堂選修`;
+  subEl.textContent = pending > 0 ? `還有 ${pending} 堂未點名` : '今日課程皆已點名';
+}
+
 function renderCourses() {
   const container = document.getElementById('courseContainer');
   if (!container) return;
@@ -748,6 +774,14 @@ function renderCourses() {
   });
 
   // 3. 渲染課程卡片
+  const todayStr = getTodayString();
+  const todayWeekday = new Date().getDay();
+  const weekdayMap = { 1: '週一', 2: '週二', 3: '週三', 4: '週四', 5: '週五' };
+  const getDayNum = c => c.weekday || c.grade || 1;
+  const getTodayRecords = c => state.history.filter(h => h.courseCode === c.code && h.date === todayStr);
+
+  renderTodayPanel(allCourses, todayWeekday, getDayNum, getTodayRecords);
+
   container.innerHTML = '';
 
   if (list.length === 0) {
@@ -759,25 +793,43 @@ function renderCourses() {
     return;
   }
 
-  const todayStr = getTodayString();
-  const weekdayMap = { 1: '週一', 2: '週二', 3: '週三', 4: '週四', 5: '週五' };
+  let lastDayNum = null;
 
   list.forEach(course => {
-    const dayNum = course.weekday || course.grade || 1;
+    const dayNum = getDayNum(course);
+    const isToday = dayNum === todayWeekday;
+
+    // 「全部」分頁依星期分組顯示標題
+    if (state.activeGradeFilter === 'all' && dayNum !== lastDayNum) {
+      lastDayNum = dayNum;
+      const groupCount = list.filter(c => getDayNum(c) === dayNum).length;
+      const header = document.createElement('div');
+      header.className = 'day-group-header';
+      header.setAttribute('data-weekday', dayNum);
+      header.innerHTML = `
+        <span class="day-group-dot" aria-hidden="true"></span>
+        <span class="day-group-name">${escapeHtml(weekdayMap[dayNum] || `週${dayNum}`)}</span>
+        ${isToday ? '<span class="today-chip">今天</span>' : ''}
+        <span class="day-group-count">${escapeHtml(groupCount)} 堂</span>
+      `;
+      container.appendChild(header);
+    }
+
     const card = document.createElement('div');
     card.className = 'course-card';
     card.setAttribute('data-grade', dayNum);
     card.setAttribute('data-weekday', dayNum);
+    if (isToday) card.setAttribute('data-today', 'true');
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', String(course.name ?? ''));
 
-    const todayRecords = state.history.filter(h => h.courseCode === course.code && h.date === todayStr);
+    const todayRecords = getTodayRecords(course);
     const hasRecordToday = todayRecords.length > 0;
     // 舊紀錄沒有 deliveryMode，視為已確認
     const hasConfirmedToday = todayRecords.some(h => h.deliveryMode !== 'fallback');
     const badgeClass = !hasRecordToday ? 'pending' : (hasConfirmedToday ? 'done' : 'unconfirmed');
-    const badgeText = !hasRecordToday ? '未點名' : (hasConfirmedToday ? '已點名' : '已點名・待確認');
+    const badgeText = !hasRecordToday ? '未點名' : (hasConfirmedToday ? '已點名' : '待確認');
     const wShort = weekdayMap[dayNum] || `週${dayNum}`;
 
     let periodText = '';
@@ -791,30 +843,28 @@ function renderCourses() {
 
     const safeDayNum = escapeHtml(dayNum);
     const safeWShort = escapeHtml(wShort);
-    const safeName = escapeHtml(course.name);
+    const safeName = escapeHtml(getDisplayCourseName(course.name));
     const safeCode = escapeHtml(course.code);
     const safePeriodText = escapeHtml(periodText);
-    const safeTeacher = escapeHtml(course.teacher);
     const safeStudentCount = escapeHtml(course.studentCount);
 
     card.innerHTML = `
-      <div>
-        <div class="card-top">
-          <span class="grade-tag grade-${safeDayNum}">${safeWShort}</span>
-          <span class="status-badge ${badgeClass}">${badgeText}</span>
-        </div>
+      <div class="course-main">
         <h3 class="course-name">${safeName}</h3>
         <div class="course-meta">
-          <span>代碼 ${safeCode}</span>
-          <span class="meta-sep">·</span>
+          <span class="grade-tag grade-${safeDayNum}">${safeWShort}</span>
           <span>${safePeriodText}</span>
           <span class="meta-sep">·</span>
-          <span>${safeTeacher}</span>
+          <span>${safeStudentCount} 人</span>
+          <span class="meta-sep">·</span>
+          <span class="meta-code">代碼 ${safeCode}</span>
         </div>
       </div>
-      <div class="card-bottom">
-        <span class="student-count-pill">修課 ${safeStudentCount} 人</span>
-        <span class="action-arrow">點名 →</span>
+      <div class="course-side">
+        <span class="status-badge ${badgeClass}">${badgeText}</span>
+        <svg class="course-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 18 6-6-6-6"></path>
+        </svg>
       </div>
     `;
 
@@ -858,7 +908,7 @@ function openRollCall(course) {
   // 更新課程資訊
   const dayNum = course.weekday || course.grade || 1;
   const weekdayChar = course.weekdayChar || ['一', '二', '三', '四', '五'][dayNum - 1] || '一';
-  document.getElementById('currentCourseTitle').textContent = course.name;
+  document.getElementById('currentCourseTitle').textContent = getDisplayCourseName(course.name);
   document.getElementById('currentCourseGradeTag').textContent = course.weekdayLabel || `週${weekdayChar}選修`;
   document.getElementById('currentCourseGradeTag').className = `grade-tag grade-${dayNum}`;
   document.getElementById('currentCourseCode').textContent = `代碼 ${course.code}`;
@@ -979,19 +1029,15 @@ function renderStudentList() {
     const safeOrigClass = escapeHtml(student.origClass);
     const safeSchool = escapeHtml(student.school);
 
-    card.innerHTML = `
-      <div class="student-info-row">
-        <div class="student-basic">
-          <div class="seat-number">${safeSeat}</div>
-          <div class="student-meta">
-            <span class="student-name">${safeName}</span>
-            <span class="student-id">${safeOrigClass} 班</span>
-          </div>
-        </div>
-        <span class="orig-class-badge">${safeSchool}</span>
-      </div>
+    const subParts = [safeOrigClass ? `${safeOrigClass} 班` : '', safeSchool].filter(Boolean);
 
-      <div class="status-btn-group">
+    card.innerHTML = `
+      <div class="seat-number">${safeSeat}</div>
+      <div class="student-meta">
+        <span class="student-name">${safeName}</span>
+        <span class="student-id">${subParts.join(' · ')}</span>
+      </div>
+      <div class="status-btn-group" role="group" aria-label="${safeName} 出缺席">
         <button type="button" class="status-choice-btn ${student.statusCode === '2' ? 'selected-present' : ''}" data-code="2" data-status="present">出席</button>
         <button type="button" class="status-choice-btn ${student.statusCode === '1' ? 'selected-personal' : ''}" data-code="1" data-status="late">遲到</button>
         <button type="button" class="status-choice-btn ${student.statusCode === '0' ? 'selected-absent' : ''}" data-code="0" data-status="absent">缺席</button>
@@ -1064,6 +1110,15 @@ function updateSummaryCounters() {
   document.getElementById('statPresent').textContent = present;
   document.getElementById('statAbsent').textContent = absent;
   document.getElementById('statLeave').textContent = late;
+
+  // 出缺席比例條
+  const pct = n => (total > 0 ? `${(n / total) * 100}%` : '0%');
+  const meterPresent = document.getElementById('meterPresent');
+  const meterLate = document.getElementById('meterLate');
+  const meterAbsent = document.getElementById('meterAbsent');
+  if (meterPresent) meterPresent.style.width = pct(present);
+  if (meterLate) meterLate.style.width = pct(late);
+  if (meterAbsent) meterAbsent.style.width = pct(absent);
 
   // 底部懸浮條總結（由 class 控制顏色，不使用 inline color）
   const bottomText = document.getElementById('bottomSummaryText');

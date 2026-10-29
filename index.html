@@ -15,22 +15,17 @@
   <link rel="icon" type="image/png" href="assets/favicon.png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
   <div id="app">
     <!-- Top Header Navigation -->
     <header class="app-header">
       <div class="brand">
-        <img src="assets/favicon.png" alt="CSHS Logo" class="brand-icon">
+        <img src="assets/favicon.png" alt="" class="brand-icon">
         <div class="brand-text">
-          <div class="brand-title">
-            <span>清水高中 點名</span>
-            <span class="user-pill">
-              <span id="currentAccountBadge">cshs643</span>
-            </span>
-          </div>
-          <div class="brand-subtitle" id="currentDateDisplay">載入日期中...</div>
+          <div class="brand-title">清水點名</div>
+          <div class="brand-subtitle" id="currentAccountBadge">cshs643</div>
         </div>
       </div>
       <div class="header-actions">
@@ -65,10 +60,22 @@
          VIEW 1: COURSE SELECTION (選擇課程頁面)
          ========================================== -->
     <main id="courseView" class="view-section">
+      <!-- 今日概況 -->
+      <section class="today-panel" aria-label="今日概況">
+        <div class="today-date">
+          <span class="today-day-num" id="todayDayNum">--</span>
+          <span class="today-day-meta" id="currentDateDisplay">載入日期中…</span>
+        </div>
+        <div class="today-summary">
+          <div class="today-headline" id="todayHeadline">正在整理今日課程…</div>
+          <div class="today-sub" id="todaySub">&nbsp;</div>
+        </div>
+      </section>
+
       <!-- Weekday Filter Tabs (Segmented Control) -->
       <nav class="grade-tabs" aria-label="課程星期篩選">
         <button type="button" class="tab-btn active" data-grade="all" data-weekday="all">
-          <span>全部課程</span>
+          <span>全部</span>
           <span class="tab-badge" id="badgeAll">0</span>
         </button>
         <button type="button" class="tab-btn" data-grade="1" data-weekday="1">
@@ -85,11 +92,6 @@
         </button>
       </nav>
 
-      <div class="section-header">
-        <h2 class="section-title">選修課程清單</h2>
-        <span class="section-hint" id="sortHintText">依星期順序排列</span>
-      </div>
-
       <!-- Course Cards Container -->
       <div id="courseContainer" class="course-grid">
         <div id="courseLoadingIndicator" class="empty-state">
@@ -104,76 +106,71 @@
          VIEW 2: ROLL CALL SCREEN (點名頁面)
          ========================================== -->
     <main id="rollCallView" class="view-section hidden">
-      <!-- Course Info & Header Card -->
-      <div class="rollcall-header-card">
+      <div class="rollcall-hero">
         <div class="course-back-bar">
           <button type="button" class="back-btn" id="backToCoursesBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M19 12H5"></path>
-              <path d="m12 19-7-7 7-7"></path>
+              <path d="m15 18-6-6 6-6"></path>
             </svg>
-            <span>返回選課</span>
+            <span>課程</span>
           </button>
           <span class="grade-tag" id="currentCourseGradeTag">週二選修</span>
         </div>
         <h2 class="rollcall-title" id="currentCourseTitle">載入中...</h2>
         <div class="rollcall-subtitle">
+          <span id="currentRollCallDate">2026/10/13</span>
           <span id="currentCourseCode">代碼 643</span>
           <span id="currentCourseClassroom">清水高中選修班</span>
-          <span id="currentRollCallDate">2026/10/13</span>
         </div>
 
         <!-- 節次多選器 (Multi-Select Periods) -->
         <div class="period-selection-section">
           <div class="period-selection-header">
-            <span class="period-selection-label">點名節次（可多選批次送出）</span>
+            <span class="period-selection-label">點名節次</span>
             <span class="period-count-hint" id="periodCountHint">已選擇 2 節</span>
           </div>
           <div class="period-chip-group" id="periodChipGroup">
             <!-- 由 app.js 根據目前課程真實節次動態產生 -->
           </div>
         </div>
+      </div>
 
-        <!-- Attendance Realtime Counter -->
-        <div class="stat-summary-bar">
-          <div class="stat-item">
-            <div class="stat-val val-total" id="statTotal">0</div>
-            <div class="stat-lbl">應到</div>
+      <!-- Attendance Realtime Meter -->
+      <div class="attendance-meter">
+        <div class="meter-head">
+          <div class="meter-figure">
+            <span class="meter-present val-present" id="statPresent">0</span>
+            <span class="meter-total">/ <span id="statTotal">0</span> 出席</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-val val-present" id="statPresent">0</div>
-            <div class="stat-lbl">出席</div>
+          <div class="meter-legend">
+            <span class="legend-item legend-late">遲到 <b class="val-leave" id="statLeave">0</b></span>
+            <span class="legend-item legend-absent">缺席 <b class="val-absent" id="statAbsent">0</b></span>
           </div>
-          <div class="stat-item">
-            <div class="stat-val val-absent" id="statAbsent">0</div>
-            <div class="stat-lbl">缺席</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val val-leave" id="statLeave">0</div>
-            <div class="stat-lbl">遲到</div>
-          </div>
+        </div>
+        <div class="meter-bar" aria-hidden="true">
+          <span class="meter-seg seg-present" id="meterPresent"></span>
+          <span class="meter-seg seg-late" id="meterLate"></span>
+          <span class="meter-seg seg-absent" id="meterAbsent"></span>
         </div>
       </div>
 
-      <!-- Quick Action Controls -->
-      <div class="quick-controls">
-        <button type="button" class="quick-btn all-present-btn" id="allPresentBtn">
-          <span>全員出席</span>
-        </button>
-        <button type="button" class="quick-btn" id="sortSeatBtn">
+      <!-- Roster Toolbar (Search + Quick Actions) -->
+      <div class="roster-toolbar">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </span>
+          <input type="search" id="studentSearchInput" class="search-input" placeholder="搜尋學生" enterkeyhint="search">
+        </div>
+        <button type="button" class="quick-btn" id="sortSeatBtn" aria-label="切換座號排序">
           <span>座號 ↑</span>
         </button>
-      </div>
-
-      <!-- Search Input -->
-      <div class="search-box">
-        <span class="search-icon" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
-        </span>
-        <input type="text" id="studentSearchInput" class="search-input" placeholder="搜尋學生姓名、班級或座號…">
+        <button type="button" class="quick-btn all-present-btn" id="allPresentBtn">
+          <span>全到</span>
+        </button>
       </div>
 
       <!-- Student Roster List -->
@@ -291,6 +288,6 @@
   </div>
 
   <!-- Application Scripts -->
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

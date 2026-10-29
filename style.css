@@ -1,61 +1,65 @@
 /* ==========================================================================
-   清水高中選修課程點名系統 - 深色精緻工具感設計系統 (Refined Dark Tool UI)
+   清水高中選修課程點名系統 - 深色點名工作台 (Dark Roll-Call Workbench)
    ========================================================================== */
 
 :root {
   --font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif;
 
   /* Surfaces & Lines */
-  --bg: #0f1115;
-  --surface: #16191f;
-  --surface-2: #1d2128;
+  --bg: #0d0f13;
+  --surface: #15181e;
+  --surface-2: #1c2027;
+  --surface-3: #242931;
   --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.13);
 
   /* Typography Colors (WCAG AA compliant on dark surfaces) */
-  --text: #e8eaed;
-  --text-2: #a1a7b0;
-  --text-3: #6b717b;
+  --text: #eceef1;
+  --text-2: #a3a9b3;
+  --text-3: #6f7681;
 
-  /* Single Accent (Muted Teal) */
-  --accent: #4fb3a9;
-  --accent-weak: rgba(79, 179, 169, 0.14);
-  --accent-border: rgba(79, 179, 169, 0.42);
-  --accent-ink: #0a1413;
+  /* Single Accent (Teal) */
+  --accent: #52bdb2;
+  --accent-weak: rgba(82, 189, 178, 0.13);
+  --accent-border: rgba(82, 189, 178, 0.45);
+  --accent-ink: #08130f;
 
-  /* Status Colors (Desaturated & Clear Contrast) */
+  /* Status Colors */
   --ok: #4cc38a;
-  --ok-weak: rgba(76, 195, 138, 0.14);
-  --ok-border: rgba(76, 195, 138, 0.38);
+  --ok-weak: rgba(76, 195, 138, 0.12);
+  --ok-border: rgba(76, 195, 138, 0.36);
+  --ok-ink: #06140d;
 
-  --warn: #e5a93c;
-  --warn-weak: rgba(229, 169, 60, 0.14);
-  --warn-border: rgba(229, 169, 60, 0.38);
+  --warn: #e8ad42;
+  --warn-weak: rgba(232, 173, 66, 0.12);
+  --warn-border: rgba(232, 173, 66, 0.4);
+  --warn-ink: #1a1203;
 
-  --bad: #eb6b6b;
-  --bad-weak: rgba(235, 107, 107, 0.14);
-  --bad-border: rgba(235, 107, 107, 0.38);
+  --bad: #ee6e6e;
+  --bad-weak: rgba(238, 110, 110, 0.12);
+  --bad-border: rgba(238, 110, 110, 0.4);
+  --bad-ink: #1c0707;
 
   --cached: #6b93b5;
 
-  /* Weekday Colors (Desaturated) */
-  --day-1: #5b8def;
-  --day-1-weak: rgba(91, 141, 239, 0.14);
-  --day-2: #9b7ede;
-  --day-2-weak: rgba(155, 126, 222, 0.14);
-  --day-3: #d97293;
-  --day-3-weak: rgba(217, 114, 147, 0.14);
-  --day-4: #4fb3a9;
-  --day-4-weak: rgba(79, 179, 169, 0.14);
-  --day-5: #d99b52;
-  --day-5-weak: rgba(217, 155, 82, 0.14);
+  /* Weekday Colors */
+  --day-1: #6b97f0;
+  --day-1-weak: rgba(107, 151, 240, 0.14);
+  --day-2: #a487e2;
+  --day-2-weak: rgba(164, 135, 226, 0.14);
+  --day-3: #de7b9a;
+  --day-3-weak: rgba(222, 123, 154, 0.14);
+  --day-4: #52bdb2;
+  --day-4-weak: rgba(82, 189, 178, 0.14);
+  --day-5: #dca05a;
+  --day-5-weak: rgba(220, 160, 90, 0.14);
 
   /* Layout & Geometry */
   --header-height: 56px;
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --shadow-subtle: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --r-sm: 7px;
+  --r-md: 11px;
+  --r-lg: 16px;
+  --shadow-subtle: 0 10px 28px rgba(0, 0, 0, 0.34);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -79,9 +83,13 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
-  overflow-x: hidden;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 只在 html 設 overflow-x：若 body 也設，body 會變成捲動容器，header 與工具列的 sticky 就會失效 */
+html {
+  overflow-x: hidden;
 }
 
 button,
@@ -108,7 +116,7 @@ select:focus-visible,
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-bottom: calc(88px + var(--safe-bottom));
+  padding-bottom: calc(96px + var(--safe-bottom));
 }
 
 .hidden {
@@ -154,34 +162,21 @@ select:focus-visible,
 }
 
 .brand-title {
-  font-size: 0.96rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  letter-spacing: 0.04em;
   line-height: 1.25;
 }
 
 .brand-subtitle {
   font-size: 0.72rem;
   color: var(--text-3);
-  font-variant-numeric: tabular-nums;
   line-height: 1.25;
   margin-top: 1px;
-}
-
-.user-pill {
-  display: inline-flex;
-  align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  padding: 1px 7px;
-  border-radius: var(--r-sm);
-  font-size: 0.72rem;
-  color: var(--text-2);
-  font-weight: 500;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-actions {
@@ -217,17 +212,16 @@ select:focus-visible,
    2. Status Banner (同步狀態列)
    ========================================================================== */
 .status-banner {
-  margin: 10px 16px 0;
-  padding: 7px 12px;
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-size: 0.78rem;
-  color: var(--text-2);
+  margin: 8px 16px 0;
+  padding: 2px 2px;
+  font-size: 0.74rem;
+  color: var(--text-3);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
 }
 
 .status-banner-main {
@@ -244,17 +238,16 @@ select:focus-visible,
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
   background: var(--text-3);
 }
 
 .status-time {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: var(--text-3);
-  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -273,6 +266,7 @@ select:focus-visible,
 }
 
 .status-banner.is-error {
+  padding: 7px 12px;
   border-color: var(--bad-border);
   background: var(--bad-weak);
   color: var(--text);
@@ -292,11 +286,66 @@ select:focus-visible,
 }
 
 /* ==========================================================================
-   3. Segmented Weekday Tabs & Section Header
+   3. Today Panel & Weekday Tabs (今日概況與星期分頁)
    ========================================================================== */
 .view-section {
   padding: 0 16px;
   flex: 1;
+}
+
+.today-panel {
+  margin-top: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(120deg, var(--accent-weak), transparent 62%),
+    var(--surface);
+}
+
+.today-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding-right: 16px;
+  border-right: 1px solid var(--line-strong);
+}
+
+.today-day-num {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.today-day-meta {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.today-summary {
+  min-width: 0;
+}
+
+.today-headline {
+  font-size: 1.08rem;
+  font-weight: 650;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.today-sub {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  color: var(--accent);
 }
 
 .grade-tabs {
@@ -317,13 +366,13 @@ select:focus-visible,
 
 .tab-btn {
   flex: 1;
-  min-height: 36px;
-  padding: 6px 12px;
+  min-height: 38px;
+  padding: 6px 10px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-2);
   border-radius: var(--r-sm);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -339,71 +388,90 @@ select:focus-visible,
 }
 
 .tab-btn.active {
-  background: var(--surface-2);
+  background: var(--surface-3);
   border-color: var(--line-strong);
   color: var(--text);
   font-weight: 600;
 }
 
 .tab-badge {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-2);
-  padding: 1px 6px;
-  border-radius: var(--r-sm);
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  font-size: 0.74rem;
 }
 
 .tab-btn.active .tab-badge {
-  background: var(--accent-weak);
   color: var(--accent);
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 14px 0 10px;
-  gap: 8px;
-}
-
-.section-title {
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--text-2);
-  letter-spacing: 0.02em;
-}
-
-.section-hint {
-  font-size: 0.75rem;
-  color: var(--text-3);
-}
-
 /* ==========================================================================
-   5. Course Cards (課程卡片)
+   4. Course List (課程清單)
    ========================================================================== */
 .course-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 6px;
 }
 
 @media (min-width: 640px) {
   .course-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
+}
+
+.day-group-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.day-group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.day-group-header[data-weekday="1"] .day-group-dot { background: var(--day-1); }
+.day-group-header[data-weekday="2"] .day-group-dot { background: var(--day-2); }
+.day-group-header[data-weekday="3"] .day-group-dot { background: var(--day-3); }
+.day-group-header[data-weekday="4"] .day-group-dot { background: var(--day-4); }
+.day-group-header[data-weekday="5"] .day-group-dot { background: var(--day-5); }
+
+.day-group-count {
+  margin-left: auto;
+  font-weight: 500;
+  color: var(--text-3);
+  font-size: 0.74rem;
+}
+
+.today-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .course-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 14px 16px 14px 18px;
+  padding: 14px 12px 14px 18px;
+  min-height: 76px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   transition: background-color 0.15s ease, border-color 0.15s ease;
@@ -415,13 +483,18 @@ select:focus-visible,
   border-color: var(--line-strong);
 }
 
+.course-card[data-today="true"] {
+  border-color: var(--accent-border);
+}
+
 .course-card::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: 12px;
   left: 0;
-  bottom: 0;
+  bottom: 12px;
   width: 3px;
+  border-radius: 0 3px 3px 0;
   background: var(--accent);
 }
 
@@ -436,61 +509,67 @@ select:focus-visible,
 .course-card[data-weekday="5"]::before,
 .course-card[data-grade="5"]::before { background: var(--day-5); }
 
-.card-top {
+.course-main {
+  min-width: 0;
+}
+
+.course-name {
+  font-size: 1.04rem;
+  font-weight: 650;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.course-meta {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 8px;
-  gap: 8px;
+  gap: 4px 6px;
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.meta-sep,
+.meta-code {
+  color: var(--text-3);
+}
+
+.course-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.course-chevron {
+  color: var(--text-3);
 }
 
 .grade-tag {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 1px 7px;
   border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
   background: var(--surface-2);
   color: var(--text-2);
   border: 1px solid var(--line);
+  white-space: nowrap;
 }
 
-.grade-tag.grade-1 {
-  background: var(--day-1-weak);
-  color: var(--day-1);
-  border-color: transparent;
-}
-
-.grade-tag.grade-2 {
-  background: var(--day-2-weak);
-  color: var(--day-2);
-  border-color: transparent;
-}
-
-.grade-tag.grade-3 {
-  background: var(--day-3-weak);
-  color: var(--day-3);
-  border-color: transparent;
-}
-
-.grade-tag.grade-4 {
-  background: var(--day-4-weak);
-  color: var(--day-4);
-  border-color: transparent;
-}
-
-.grade-tag.grade-5 {
-  background: var(--day-5-weak);
-  color: var(--day-5);
-  border-color: transparent;
-}
+.grade-tag.grade-1 { background: var(--day-1-weak); color: var(--day-1); border-color: transparent; }
+.grade-tag.grade-2 { background: var(--day-2-weak); color: var(--day-2); border-color: transparent; }
+.grade-tag.grade-3 { background: var(--day-3-weak); color: var(--day-3); border-color: transparent; }
+.grade-tag.grade-4 { background: var(--day-4-weak); color: var(--day-4); border-color: transparent; }
+.grade-tag.grade-5 { background: var(--day-5-weak); color: var(--day-5); border-color: transparent; }
 
 .status-badge {
   font-size: 0.72rem;
   padding: 2px 8px;
-  border-radius: var(--r-sm);
-  font-weight: 500;
+  border-radius: 999px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -505,62 +584,16 @@ select:focus-visible,
 }
 
 .status-badge.pending {
-  background: var(--surface-2);
+  background: transparent;
   color: var(--text-3);
-}
-
-.course-name {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 6px;
-  line-height: 1.35;
-}
-
-.course-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.meta-sep {
-  color: var(--text-3);
-}
-
-.card-bottom {
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.student-count-pill {
-  font-size: 0.78rem;
-  color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.action-arrow {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--accent);
+  border: 1px dashed var(--line-strong);
 }
 
 /* ==========================================================================
-   6. Roll Call Header Card & Period Chips & Stat Bar
+   5. Roll Call Hero (點名頁課程資訊與節次)
    ========================================================================== */
-.rollcall-header-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 14px 16px;
-  margin-top: 12px;
-  margin-bottom: 12px;
+.rollcall-hero {
+  margin-top: 10px;
 }
 
 .course-back-bar {
@@ -573,13 +606,13 @@ select:focus-visible,
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: transparent;
   border: 1px solid var(--line);
   color: var(--text-2);
-  padding: 6px 10px;
-  min-height: 34px;
-  border-radius: var(--r-sm);
+  padding: 6px 12px 6px 8px;
+  min-height: 36px;
+  border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -594,33 +627,30 @@ select:focus-visible,
 }
 
 .rollcall-title {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.45rem;
+  font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
   line-height: 1.3;
+  letter-spacing: 0.01em;
 }
 
 .rollcall-subtitle {
-  font-size: 0.8rem;
-  color: var(--text-2);
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--text-3);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .rollcall-subtitle span + span::before {
   content: "·";
   margin: 0 7px;
-  color: var(--text-3);
 }
 
 /* Period Selection */
 .period-selection-section {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+  margin-top: 14px;
 }
 
 .period-selection-header {
@@ -640,7 +670,6 @@ select:focus-visible,
 .period-count-hint {
   font-size: 0.74rem;
   color: var(--text-3);
-  font-variant-numeric: tabular-nums;
 }
 
 .period-chip-group {
@@ -650,10 +679,10 @@ select:focus-visible,
 }
 
 .period-chip {
-  padding: 6px 12px;
-  min-height: 34px;
-  border-radius: var(--r-sm);
-  font-size: 0.8rem;
+  padding: 6px 14px;
+  min-height: 38px;
+  border-radius: 999px;
+  font-size: 0.82rem;
   font-weight: 500;
   border: 1px solid var(--line-strong);
   background: transparent;
@@ -662,7 +691,6 @@ select:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-variant-numeric: tabular-nums;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -679,57 +707,153 @@ select:focus-visible,
 }
 
 .period-chip.selected::before {
-  content: "✓ ";
+  content: "✓";
   font-weight: 700;
 }
-
-/* Stat Summary Bar */
-.stat-summary-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.stat-item {
-  background: var(--bg);
-  border-radius: var(--r-md);
-  padding: 8px 6px;
-  text-align: center;
-  border: 1px solid var(--line);
-}
-
-.stat-val {
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-lbl {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  margin-top: 2px;
-}
-
-.stat-val.val-total { color: var(--text); }
-.stat-val.val-present { color: var(--ok); }
-.stat-val.val-absent { color: var(--bad); }
-.stat-val.val-leave { color: var(--warn); }
 
 /* ==========================================================================
-   7. Toolbar (Quick Controls & Search Box)
+   6. Attendance Meter (出缺席比例條)
    ========================================================================== */
-.quick-controls {
+.attendance-meter {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+.meter-head {
   display: flex;
-  gap: 8px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
-.quick-btn {
+.meter-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.meter-present {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.meter-total {
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+
+.meter-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.legend-item b {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.val-present { color: var(--ok); }
+.val-absent { color: var(--bad); }
+.val-leave { color: var(--warn); }
+
+.meter-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-3);
+}
+
+.meter-seg {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width 0.25s ease;
+}
+
+.meter-seg.seg-present { background: var(--ok); }
+.meter-seg.seg-late { background: var(--warn); }
+.meter-seg.seg-absent { background: var(--bad); }
+
+/* ==========================================================================
+   7. Roster Toolbar (搜尋與快捷操作，捲動時固定)
+   ========================================================================== */
+.roster-toolbar {
+  position: sticky;
+  top: calc(var(--header-height) + var(--safe-top));
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  margin: 0 -16px;
+  padding: 10px 16px;
+  background: var(--bg);
+}
+
+.search-box {
+  position: relative;
   flex: 1;
-  min-height: 40px;
-  padding: 8px 12px;
+  min-width: 0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 0 12px 0 36px;
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: 16px; /* 避免 iOS 聚焦時自動放大 */
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s ease;
+}
+
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-3);
+  font-size: 0.86rem;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.quick-btn {
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 12px;
   border-radius: var(--r-md);
   font-size: 0.84rem;
   font-weight: 600;
@@ -740,7 +864,7 @@ select:focus-visible,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -762,62 +886,33 @@ select:focus-visible,
   border-color: var(--ok);
 }
 
-.search-box {
-  position: relative;
-  margin-bottom: 12px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3);
-  display: inline-flex;
-  align-items: center;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  padding: 9px 12px 9px 36px;
-  border-radius: var(--r-md);
-  color: var(--text);
-  font-size: 0.88rem;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.search-input::placeholder {
-  color: var(--text-3);
-}
-
-.search-input:focus {
-  border-color: var(--accent);
-}
-
 /* ==========================================================================
-   8. Student List & Compact Student Card (學生列)
+   8. Student Roster (學生名冊：一人一列)
    ========================================================================== */
 .student-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.student-list > .empty-state {
+  border: 0;
+  border-radius: 0;
 }
 
 .student-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 12px;
   position: relative;
-  overflow: hidden;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+
+.student-card + .student-card {
+  border-top: 1px solid var(--line);
 }
 
 .student-card::before {
@@ -830,136 +925,122 @@ select:focus-visible,
   background: transparent;
 }
 
+.student-card[data-status="late"] {
+  background: var(--warn-weak);
+}
+
 .student-card[data-status="late"]::before {
   background: var(--warn);
+}
+
+.student-card[data-status="absent"] {
+  background: var(--bad-weak);
 }
 
 .student-card[data-status="absent"]::before {
   background: var(--bad);
 }
 
-.student-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-width: 0;
-}
-
-.student-basic {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
 .seat-number {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--r-sm);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: var(--surface-2);
   border: 1px solid var(--line);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.86rem;
+  font-weight: 700;
   color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
 }
 
 .student-meta {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
   min-width: 0;
-  flex-wrap: wrap;
 }
 
 .student-name {
-  font-size: 0.98rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .student-id {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.orig-class-badge {
-  font-size: 0.7rem;
-  padding: 1px 6px;
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-  color: var(--text-3);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 /* Three-State Segmented Attendance Buttons */
 .status-btn-group {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
 }
 
 .status-choice-btn {
-  min-height: 44px;
-  padding: 6px 10px;
+  min-width: 48px;
+  min-height: 40px;
+  padding: 0 8px;
   border-radius: var(--r-sm);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--text-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-3);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .status-choice-btn:hover {
-  border-color: var(--line-strong);
   color: var(--text);
 }
 
 .status-choice-btn.selected-present {
   background: var(--ok-weak);
-  border-color: var(--ok-border);
   color: var(--ok);
 }
 
 .status-choice-btn.selected-personal {
-  background: var(--warn-weak);
-  border-color: var(--warn-border);
-  color: var(--warn);
+  background: var(--warn);
+  color: var(--warn-ink);
 }
 
 .status-choice-btn.selected-absent {
-  background: var(--bad-weak);
-  border-color: var(--bad-border);
-  color: var(--bad);
+  background: var(--bad);
+  color: var(--bad-ink);
 }
 
-@media (min-width: 480px) {
+@media (min-width: 560px) {
+  .status-choice-btn {
+    min-width: 64px;
+  }
+}
+
+@media (max-width: 350px) {
   .student-card {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px 8px 14px;
+    gap: 8px;
+    padding-left: 10px;
   }
 
-  .student-info-row {
-    flex: 1;
-  }
-
-  .status-btn-group {
-    width: 228px;
-    flex-shrink: 0;
+  .status-choice-btn {
+    min-width: 42px;
+    padding: 0 4px;
   }
 }
 
@@ -974,14 +1055,22 @@ select:focus-visible,
   max-width: 860px;
   margin: 0 auto;
   background: var(--surface);
-  border-top: 1px solid var(--line);
-  box-shadow: var(--shadow-subtle);
-  padding: 10px 16px calc(10px + var(--safe-bottom));
+  border-top: 1px solid var(--line-strong);
+  box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.35);
+  padding: 10px calc(16px + var(--safe-right)) calc(10px + var(--safe-bottom)) calc(16px + var(--safe-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   z-index: 99;
+}
+
+@media (min-width: 860px) {
+  .bottom-action-bar {
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
 }
 
 .bottom-summary {
@@ -991,10 +1080,12 @@ select:focus-visible,
 }
 
 .bottom-summary-text {
-  font-size: 0.86rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 650;
   color: var(--text);
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bottom-summary-text.is-all-present {
@@ -1008,17 +1099,17 @@ select:focus-visible,
 .bottom-summary-sub {
   font-size: 0.74rem;
   color: var(--text-3);
-  font-variant-numeric: tabular-nums;
 }
 
 .submit-btn {
-  min-height: 48px;
-  padding: 10px 22px;
+  min-height: 50px;
+  padding: 0 24px;
   border-radius: var(--r-md);
   background: var(--accent);
   color: var(--accent-ink);
-  font-weight: 600;
-  font-size: 0.92rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
   border: 1px solid transparent;
   cursor: pointer;
   display: inline-flex;
@@ -1026,22 +1117,40 @@ select:focus-visible,
   justify-content: center;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 0.15s ease, filter 0.15s ease;
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.1s ease;
 }
 
 .submit-btn:hover {
   filter: brightness(1.06);
 }
 
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
 .submit-btn:disabled {
   opacity: 0.42;
   cursor: not-allowed;
   filter: none;
+  transform: none;
 }
 
 /* ==========================================================================
    10. History View (歷史點名紀錄)
    ========================================================================== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .history-section-header {
   margin-top: 12px;
 }
@@ -1056,9 +1165,9 @@ select:focus-visible,
   background: transparent;
   border: 1px solid var(--bad-border);
   color: var(--bad);
-  padding: 5px 10px;
-  min-height: 32px;
-  border-radius: var(--r-sm);
+  padding: 5px 12px;
+  min-height: 36px;
+  border-radius: 999px;
   font-size: 0.76rem;
   font-weight: 500;
   cursor: pointer;
@@ -1073,16 +1182,15 @@ select:focus-visible,
 .history-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .history-card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--r-md);
-  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1096,8 +1204,8 @@ select:focus-visible,
 }
 
 .history-course-name {
-  font-size: 0.98rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 650;
   color: var(--text);
 }
 
@@ -1105,35 +1213,37 @@ select:focus-visible,
   font-size: 0.76rem;
   color: var(--text-3);
   margin-top: 2px;
-  font-variant-numeric: tabular-nums;
 }
 
 .history-stats-box {
-  padding: 8px 10px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
 }
 
 .history-counts {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  font-size: 0.8rem;
+  gap: 6px;
+  font-size: 0.76rem;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 
-.count-ok { color: var(--ok); }
-.count-bad { color: var(--bad); }
-.count-warn { color: var(--warn); }
+.history-counts > span {
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.count-ok { color: var(--ok); background: var(--ok-weak); }
+.count-bad { color: var(--bad); background: var(--bad-weak); }
+.count-warn { color: var(--warn); background: var(--warn-weak); }
 
 .history-abnormal {
   font-size: 0.76rem;
   color: var(--text-2);
+  line-height: 1.55;
 }
 
 /* ==========================================================================
@@ -1142,7 +1252,7 @@ select:focus-visible,
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.66);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1197,8 +1307,8 @@ select:focus-visible,
 }
 
 .modal-title {
-  font-size: 1.02rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text);
 }
 
@@ -1236,10 +1346,10 @@ select:focus-visible,
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--line);
-  padding: 9px 12px;
+  padding: 10px 12px;
   border-radius: var(--r-sm);
   color: var(--text);
-  font-size: 0.86rem;
+  font-size: 16px; /* 避免 iOS 聚焦時自動放大 */
   outline: none;
   transition: border-color 0.15s ease;
 }
@@ -1256,7 +1366,7 @@ select:focus-visible,
 }
 
 .btn-secondary {
-  min-height: 40px;
+  min-height: 42px;
   padding: 8px 14px;
   border-radius: var(--r-sm);
   background: var(--surface-2);
@@ -1277,7 +1387,7 @@ select:focus-visible,
 }
 
 .btn-primary {
-  min-height: 40px;
+  min-height: 42px;
   padding: 8px 16px;
   border-radius: var(--r-sm);
   background: var(--accent);
@@ -1298,7 +1408,7 @@ select:focus-visible,
 }
 
 .btn-danger-outline {
-  min-height: 40px;
+  min-height: 42px;
   padding: 8px 14px;
   border-radius: var(--r-sm);
   background: transparent;
@@ -1327,18 +1437,18 @@ select:focus-visible,
    ========================================================================== */
 .toast {
   position: fixed;
-  bottom: calc(84px + var(--safe-bottom));
+  bottom: calc(92px + var(--safe-bottom));
   left: 0;
   right: 0;
   margin: 0 auto;
   width: max-content;
   max-width: calc(100vw - 32px);
   transform: translateY(10px);
-  background: var(--surface-2);
+  background: var(--surface-3);
   border: 1px solid var(--line-strong);
   color: var(--text);
-  padding: 9px 16px;
-  border-radius: var(--r-md);
+  padding: 10px 16px;
+  border-radius: 999px;
   font-size: 0.84rem;
   font-weight: 500;
   box-shadow: var(--shadow-subtle);
@@ -1375,6 +1485,10 @@ select:focus-visible,
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.course-grid > .empty-state {
+  margin-top: 6px;
 }
 
 .empty-state.is-error {
